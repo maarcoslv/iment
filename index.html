@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Director de la NASA · Hangar</title>
+<link rel="stylesheet" href="style.css">
+<script type="importmap">
+{ "imports": { "three": "./three.module.js", "three/addons/controls/OrbitControls.js": "./OrbitControls.js" } }
+</script>
+</head>
+<body>
+<header>
+  <h1>Director de la NASA <span>Hangar, prototipo 0.1</span></h1>
+  <nav aria-label="Vista">
+    <button data-v="3d" class="on">Hangar 3D</button>
+    <button data-v="bp">Planos</button>
+  </nav>
+</header>
+<main>
+  <aside id="catalog" aria-label="Piezas"></aside>
+  <section id="stage">
+    <div id="view3d"></div>
+    <canvas id="bp" hidden></canvas>
+    <ul id="alerts"></ul>
+  </section>
+  <aside id="side">
+    <div id="stats"></div>
+    <h2>Cohete (de arriba abajo)</h2>
+    <ol id="stack"></ol>
+    <h2>Biblioteca de diseños</h2>
+    <input id="name" aria-label="Nombre del diseño" maxlength="40">
+    <div class="row">
+      <button id="save">Guardar</button>
+      <button id="new">Nuevo</button>
+      <button id="png">Exportar plano</button>
+    </div>
+    <select id="lib" aria-label="Diseños guardados"></select>
+    <div class="row">
+      <button id="load">Cargar</button>
+      <button id="del">Borrar</button>
+    </div>
+  </aside>
+</main>
+<script type="module" src="main.js"></script>
+</body>
+</html>
