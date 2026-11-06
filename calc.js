@@ -1,9 +1,9 @@
-import { PARTS } from './parts.js';
+import { inst } from './parts.js';
 export const G0 = 9.80665, DV_LEO = 9400;
 
 // stack: ids de arriba a abajo. Cada separador cierra la etapa que queda debajo de él.
 export function analyze(stack) {
-  const parts = stack.map(id => PARTS[id]), alerts = [], groups = [];
+  const parts = stack.map(inst), alerts = [], groups = [];
   let cur = [];
   for (let i = parts.length - 1; i >= 0; i--) {
     cur.push(parts[i]);

@@ -1,8 +1,8 @@
-import { PARTS } from './parts.js';
+import { inst } from './parts.js';
 const fmt = n => Math.round(n).toLocaleString('es-ES');
 
 // Vista lateral en estilo plano: líneas blancas sobre azul, con cotas.
-export function drawBlueprint(c, stack, a, name) {
+export function drawBlueprint(c, stack, a, name, sel = -1) {
   const W = c.width, H = c.height, x = c.getContext('2d'), fs = Math.max(11, W / 85);
   x.fillStyle = '#0b3a75'; x.fillRect(0, 0, W, H);
   x.strokeStyle = 'rgba(255,255,255,.09)'; x.lineWidth = 1;
@@ -11,17 +11,18 @@ export function drawBlueprint(c, stack, a, name) {
   x.font = `${fs}px ui-monospace, Consolas, monospace`; x.fillStyle = x.strokeStyle = '#fff'; x.lineWidth = 1.6;
   if (!stack.length) { x.fillText('Sin piezas. Añade piezas desde el catálogo.', 30, 40); return; }
 
-  const top = 50, bot = H - 60, maxR = Math.max(...stack.map(id => PARTS[id].r));
+  const ps = stack.map(inst), top = 50, bot = H - 60, maxR = Math.max(...ps.map(p => p.r));
   const s = Math.min((bot - top) / a.height, (W * 0.28) / maxR), cx = W * 0.3;
   let y = bot;
   x.setLineDash([10, 5, 2, 5]); x.beginPath(); x.moveTo(cx, top - 20); x.lineTo(cx, bot + 20); x.stroke(); x.setLineDash([]);
   const xr = cx + maxR * s + 45;
   for (let i = stack.length - 1; i >= 0; i--) {
-    const id = stack[i], p = PARTS[id], h = p.h * s;
+    const p = ps[i], id = p.id, h = p.h * s;
     const [rt, rb] = p.kind === 'engine' ? [p.r * .35, p.r] : id === 'capsule' ? [p.r * .2, p.r] : id === 'probe' ? [p.r * .6, p.r] : [p.r, p.r];
     x.fillStyle = '#0b3a75'; x.beginPath();
     x.moveTo(cx - rt * s, y - h); x.lineTo(cx + rt * s, y - h); x.lineTo(cx + rb * s, y); x.lineTo(cx - rb * s, y); x.closePath();
     x.fill(); x.stroke();
+    if (i === sel) { x.save(); x.strokeStyle = '#ffd36b'; x.lineWidth = 4; x.stroke(); x.restore(); }
     // cota: línea vertical con marcas y texto
     x.beginPath(); x.moveTo(xr, y); x.lineTo(xr, y - h);
     x.moveTo(xr - 5, y); x.lineTo(xr + 5, y); x.moveTo(xr - 5, y - h); x.lineTo(xr + 5, y - h); x.stroke();

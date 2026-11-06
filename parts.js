@@ -12,3 +12,5 @@ export const PARTS = {
   engineC3:{ kind: 'engine', name: 'Racimo de 3 motores pesados', mass: 10500, thrust: 6600, isp: 350, ispSL: 310, r: 3, h: 3.5, color: 0x6b7280 },
   decoupler:{ kind: 'decoupler', name: 'Separador de etapa', mass: 300, r: 2.5, h: 0.4, color: 0xd9622b },
 };
+// Pieza concreta del diseño: {id, k}. k escala la longitud de los tanques (masa y combustible incluidos).
+export const inst = e => { const p = PARTS[e.id], k = e.k || 1; return { ...p, id: e.id, k, mass: p.mass * k, h: p.h * k, ...(p.prop ? { prop: p.prop * k } : {}) }; };
