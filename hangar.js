@@ -27,7 +27,7 @@ export class Hangar {
     dom.addEventListener('pointerup', e => { if (d0 && Math.hypot(e.clientX - d0[0], e.clientY - d0[1]) < 5) this.onPick(at(e)); d0 = null; });
     dom.addEventListener('pointermove', e => { if (e.buttons) return; const i = at(e);
       if (i !== this.hover) { this.hover = i; dom.style.cursor = i < 0 ? 'grab' : 'pointer'; this.paint(); } });
-    const loop = () => { requestAnimationFrame(loop); if (el.hidden) return; this.ctl.update(); r.render(s, this.cam); };
+    const loop = () => { requestAnimationFrame(loop); if (el.hidden || this.paused) return; this.ctl.update(); r.render(s, this.cam); };
     loop();
   }
   resize() {

@@ -11,11 +11,12 @@
 </head>
 <body>
 <header>
-  <h1>Director de la NASA <span>Hangar, prototipo 0.2</span></h1>
+  <h1>Director de la NASA <span>Hangar, prototipo 0.3</span></h1>
   <div class="row">
     <button id="undo" title="Deshacer (Ctrl+Z)">Deshacer</button>
     <button id="redo" title="Rehacer (Ctrl+Y)">Rehacer</button>
   </div>
+  <button id="launch" class="primary" title="Ir a la sala de control y lanzar este cohete">Lanzar</button>
   <nav aria-label="Vista">
     <button data-v="3d" class="on">Hangar 3D</button>
     <button data-v="bp">Planos</button>
@@ -45,6 +46,15 @@
     </details>
   </aside>
 </main>
+<section id="control" hidden aria-label="Sala de control">
+  <div id="ctl-top">
+    <b id="ctl-name"></b>
+    <div class="grp" id="cams" aria-label="Cámaras"><button data-cam="pad" class="on">Rampa</button><button data-cam="follow">Seguimiento</button><button data-cam="board">A bordo</button><button data-cam="free">Libre</button></div>
+    <div class="grp" id="warp" aria-label="Velocidad del tiempo"><button data-w="0">Pausa</button><button data-w="0.25">×0,25</button><button data-w="1" class="on">×1</button><button data-w="5">×5</button><button data-w="20">×20</button><button data-w="100">×100</button></div>
+    <button id="ctl-exit">Salir al hangar</button>
+  </div>
+  <div id="ctl-main"><dl id="tele"></dl><div id="ctl-view"><div id="gonogo" hidden></div><div id="result" hidden></div></div><ol id="log" aria-label="Registro de la misión"></ol></div>
+</section>
 <script type="module" src="main.js"></script>
 </body>
 </html>

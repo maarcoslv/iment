@@ -17,7 +17,8 @@ export function analyze(stack) {
     const F = en.reduce((a, p) => a + p.thrust, 0);
     const FSL = en.reduce((a, p) => a + p.thrust * p.ispSL / p.isp, 0);
     const isp = F ? F / en.reduce((a, p) => a + p.thrust / p.isp, 0) : 0;
-    return { n: i + 1, dry, prop, wet: dry + prop, F, FSL, isp, engines: en.length };
+    const ispSL = FSL ? FSL / en.reduce((a, p) => a + p.thrust / p.isp, 0) : 0;
+    return { n: i + 1, dry, prop, wet: dry + prop, F, FSL, isp, ispSL, engines: en.length, parts: ps };
   });
   let above = 0;
   for (let i = stages.length - 1; i >= 0; i--) {
@@ -41,6 +42,7 @@ export function analyze(stack) {
       if (s.prop && !s.engines) alerts.push(['warn', `La etapa ${s.n} lleva combustible pero ningún motor: es peso muerto.`]);
       if (s.engines && !s.prop) alerts.push(['warn', `La etapa ${s.n} tiene motor pero no combustible.`]);
     });
+    stages.forEach(s => { if (s.n > 1 && s.engines && s.prop && s.twr < 0.4) alerts.push(['warn', `La etapa ${s.n} tiene muy poco empuje (${s.twr.toFixed(2)}): gastará mucho combustible luchando contra la gravedad.`]); });
     if (twr && twr < 1) alerts.push(['err', `Empuje/peso en el despegue ${twr.toFixed(2)}: no despega. Necesitas más empuje o menos masa.`]);
     else if (twr && twr < 1.2) alerts.push(['warn', `Empuje/peso en el despegue ${twr.toFixed(2)}: despegue muy lento.`]);
     if (dv && dv < DV_LEO) alerts.push(['warn', `Δv ${Math.round(dv)} m/s: insuficiente para órbita baja (≈${DV_LEO} m/s).`]);

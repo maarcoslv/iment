@@ -55,3 +55,22 @@ summary{cursor:pointer;color:var(--dim);font-weight:600;margin:14px 0 6px}
 #stack .item:hover{background:#183656}
 #stack li.sel .item{background:#1d4a7a;border-left-color:var(--warn)}
 details input,details select{margin:6px 0}
+header{gap:12px}header h1{flex:1}
+.primary{background:var(--acc);color:#06182b;border-color:var(--acc);font-weight:600}
+#control{position:fixed;inset:0;z-index:20;background:var(--bg);display:grid;grid-template-rows:auto 1fr}
+#control[hidden]{display:none}
+#ctl-top{display:flex;gap:16px;align-items:center;padding:8px 14px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+#ctl-top .grp{display:flex;gap:4px}#ctl-top button.on{background:var(--acc);color:#06182b;border-color:var(--acc)}
+#ctl-top #ctl-exit{margin-left:auto}
+#ctl-main{display:grid;grid-template-columns:230px 1fr 260px;min-height:0}
+#tele{margin:0;padding:6px 14px 14px;background:var(--panel);border-right:1px solid var(--line);overflow:auto}
+#tele dt{color:var(--dim);font-size:12px;margin-top:9px}#tele dd{margin:0;font-size:18px;font-variant-numeric:tabular-nums}
+#ctl-view{position:relative;min-width:0;min-height:0;background:#000;overflow:hidden}
+#log{margin:0;padding:12px 12px 12px 30px;background:var(--panel);border-left:1px solid var(--line);overflow:auto;font-size:12.5px;line-height:1.7;font-variant-numeric:tabular-nums}
+#gonogo,#result{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(460px,92%);background:rgba(13,29,51,.96);border:1px solid var(--acc);border-radius:8px;padding:16px}
+#gonogo[hidden],#result[hidden]{display:none}
+#gonogo h2,#result h2{font-size:18px;margin:0 0 6px;color:var(--ink)}
+.gn{display:grid;grid-template-columns:96px 104px 1fr;gap:8px;padding:7px 0;border-bottom:1px solid var(--line);align-items:center}
+.gn span{font-weight:700;font-size:12.5px}.gn small{color:var(--dim)}
+.gn .ok,#result .ok{color:var(--ok)}.gn .warn{color:var(--warn)}.gn .bad,#result .bad{color:var(--err)}
+@media(max-width:900px){#ctl-main{grid-template-columns:1fr;grid-template-rows:auto 55vh auto;overflow:auto}}
