@@ -3,6 +3,8 @@ import { analyze, DV_LEO } from './calc.js';
 import { Hangar } from './hangar.js';
 import { drawBlueprint } from './blueprint.js';
 import { ControlRoom } from './control.js';
+import { G } from './game.js';
+import { Agency } from './agency.js';
 
 const $ = s => document.querySelector(s), KEY = 'dn.designs';
 const fmt = n => Math.round(n).toLocaleString('es-ES');
@@ -18,7 +20,7 @@ const record = () => { hist.push(snap()); fut = []; };
 const edit = fn => { record(); fn(); refresh(); };
 const travel = (from, to) => { if (!from.length) return; to.push(snap()); state.stack = JSON.parse(from.pop()); state.sel = Math.min(state.sel, state.stack.length - 1); refresh(); };
 const el = (t, txt, cls) => { const e = document.createElement(t); if (txt) e.textContent = txt; if (cls) e.className = cls; return e; };
-const info = e => { const p = inst(e); return `${p.h.toFixed(1)} m · ${fmt(p.mass)} kg` + (p.prop ? ` · ${fmt(p.prop)} kg de combustible` : '') + (p.thrust ? ` · ${fmt(p.thrust)} kN · Isp ${p.isp} s` : ''); };
+const info = e => { const p = inst(e); return `${p.h.toFixed(1)} m · ${fmt(p.mass)} kg · ${fmt(p.cost)} M$` + (p.prop ? ` · ${fmt(p.prop)} kg de combustible` : '') + (p.thrust ? ` · ${fmt(p.thrust)} kN · Isp ${p.isp} s` : ''); };
 
 function buildCatalog() {
   const box = $('#catalog');
@@ -64,6 +66,7 @@ function del() { if (state.sel >= 0) edit(() => { state.stack.splice(state.sel, 
 function refresh(keepProps) {
   const a = analyze(state.stack), cls = (v, lo, hi) => v < lo ? 'bad' : v < hi ? 'warn' : 'good';
   $('#name').value = state.name;
+  $('#hud').textContent = `${G.label()} · ${fmt(G.s.money)} M$`;
   $('#undo').disabled = !hist.length; $('#redo').disabled = !fut.length;
   $('#addtip').textContent = state.sel < 0 ? 'Las piezas nuevas se añaden al final. Selecciona una pieza y se añadirán justo debajo.' : `Las piezas nuevas se añaden debajo de «${inst(state.stack[state.sel]).name}».`;
   $('#stats').innerHTML = `<div class="big">
@@ -72,7 +75,8 @@ function refresh(keepProps) {
     <div class="${cls(a.dv, DV_LEO, DV_LEO)}" title="Cambio de velocidad total. Órbita baja ≈ ${DV_LEO} m/s"><b>${fmt(a.dv)} m/s</b><span>Δv disponible</span></div>
     <div title="Altura total"><b>${a.height.toFixed(1)} m</b><span>Altura</span></div></div>
     <table><tr><th>Etapa</th><th>Δv m/s</th><th>Empuje kN</th><th>Masa kg</th></tr>
-    ${a.stages.map(s => `<tr><td>${s.n}</td><td>${fmt(s.dv)}</td><td>${fmt(s.F)}</td><td>${fmt(s.m0)}</td></tr>`).join('')}</table>`;
+    ${a.stages.map(s => `<tr><td>${s.n}</td><td>${fmt(s.dv)}</td><td>${fmt(s.F)}</td><td>${fmt(s.m0)}</td></tr>`).join('')}</table>
+    <p class="tip">Coste del lanzamiento: <b>${fmt(G.cost(state.stack))} M$</b> · Fondos: ${fmt(G.s.money)} M$${G.s.active ? ` · Contrato: ${G.s.active.name}` : ''}</p>`;
   const ul = $('#stack'); ul.replaceChildren();
   state.stack.forEach((e, i) => {
     const li = el('li', '', i === state.sel ? 'sel' : ''), b = el('button', inst(e).name, 'item');
@@ -121,9 +125,13 @@ $('#png').onclick = () => {
   const l = document.createElement('a'); l.download = `plano-${state.name}.png`; l.href = c.toDataURL('image/png'); l.click();
 };
 
-const room = new ControlRoom(() => { hangar.paused = false; hangar.resize(); });
+const back = () => { hangar.paused = false; hangar.resize(); refresh(); };
+const room = new ControlRoom({ onClose: back, check: s => G.check(s), onGo: s => G.onGo(s), onResult: (s, ok) => G.onResult(s, ok) });
+const agency = new Agency(back);
+$('#agency-btn').onclick = () => { hangar.paused = true; agency.open(); };
 $('#launch').onclick = () => {
   if (!state.stack.length) return alert('Construye un cohete antes de lanzar.');
+  if (G.s.over) return alert('Tu mandato ha terminado. Abre la Agencia para empezar una partida nueva.');
   hangar.paused = true; room.open(state.stack, state.name);
 };
 

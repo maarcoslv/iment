@@ -4,18 +4,19 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Director de la NASA · Hangar</title>
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=4">
 <script type="importmap">
-{ "imports": { "three": "./three.module.js", "three/addons/controls/OrbitControls.js": "./OrbitControls.js" } }
+{ "imports": { "three": "./three.module.js", "three/addons/controls/OrbitControls.js": "./OrbitControls.js", "./parts.js": "./parts.js?v=4", "./calc.js": "./calc.js?v=4", "./hangar.js": "./hangar.js?v=4", "./blueprint.js": "./blueprint.js?v=4", "./control.js": "./control.js?v=4", "./flight.js": "./flight.js?v=4", "./rocket3d.js": "./rocket3d.js?v=4", "./game.js": "./game.js?v=4", "./gamedata.js": "./gamedata.js?v=4", "./agency.js": "./agency.js?v=4" } }
 </script>
 </head>
 <body>
 <header>
-  <h1>Director de la NASA <span>Hangar, prototipo 0.3</span></h1>
+  <h1>Director de la NASA <span>Hangar, prototipo 0.4</span></h1>
   <div class="row">
     <button id="undo" title="Deshacer (Ctrl+Z)">Deshacer</button>
     <button id="redo" title="Rehacer (Ctrl+Y)">Rehacer</button>
   </div>
+  <span id="hud"></span><button id="agency-btn" title="Panel de dirección: presupuesto, contratos y decisiones">Agencia</button>
   <button id="launch" class="primary" title="Ir a la sala de control y lanzar este cohete">Lanzar</button>
   <nav aria-label="Vista">
     <button data-v="3d" class="on">Hangar 3D</button>
@@ -46,6 +47,15 @@
     </details>
   </aside>
 </main>
+<section id="agency" hidden aria-label="Panel de dirección">
+  <div id="ag-top"><b id="ag-title"></b><button id="ag-next" class="primary" title="Avanza el tiempo: cobras el presupuesto y llegan noticias">Pasar trimestre</button><button id="ag-close">Volver al hangar</button></div>
+  <div id="ag-main">
+    <div id="ag-stats"></div>
+    <div id="ag-center"><h2>Contratos y misiones</h2><div id="ag-missions"></div></div>
+    <div id="ag-side"><h2>Noticias</h2><ol id="ag-news"></ol><h2>Legado hasta ahora</h2><div id="ag-legacy"></div><button id="ag-new">Nueva partida</button></div>
+  </div>
+  <div id="ag-dialog" hidden></div>
+</section>
 <section id="control" hidden aria-label="Sala de control">
   <div id="ctl-top">
     <b id="ctl-name"></b>
@@ -55,6 +65,6 @@
   </div>
   <div id="ctl-main"><dl id="tele"></dl><div id="ctl-view"><div id="gonogo" hidden></div><div id="result" hidden></div></div><ol id="log" aria-label="Registro de la misión"></ol></div>
 </section>
-<script type="module" src="main.js"></script>
+<script type="module" src="main.js?v=4"></script>
 </body>
 </html>

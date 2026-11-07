@@ -13,8 +13,8 @@ const FIELDS = [['t', 'Reloj'], ['ph', 'Fase'], ['alt', 'Altitud'], ['v', 'Veloc
   ['thr', 'Empuje'], ['st', 'Etapa'], ['fuel', 'Combustible de la etapa'], ['mass', 'Masa'], ['q', 'Presión dinámica']];
 
 export class ControlRoom {
-  constructor(onClose) {
-    Object.assign(this, { onClose, cam: 'pad', warp: 1, opened: false, running: false, ready: false, acc: 0, t0: 0, dgl: [], tl: {} });
+  constructor(hooks) {
+    Object.assign(this, { hooks, cam: 'pad', warp: 1, opened: false, running: false, ready: false, acc: 0, t0: 0, dgl: [], tl: {} });
     $('#tele').replaceChildren(...FIELDS.flatMap(([k, l]) => { const dd = el('dd', '—'); this.tl[k] = dd; return [el('dt', l), dd]; }));
     document.querySelectorAll('#cams button').forEach(b => b.onclick = () => this.setCam(b.dataset.cam));
     document.querySelectorAll('#warp button').forEach(b => b.onclick = () => { this.warp = +b.dataset.w; this.markWarp(); });
@@ -78,7 +78,7 @@ export class ControlRoom {
     this.reset(); this.setCam('pad'); this.warp = 1; this.markWarp(); this.gonogo(); this.resize();
     this.opened = true; this.t0 = 0; requestAnimationFrame(this.loop);
   }
-  close() { this.opened = false; this.running = false; $('#control').hidden = true; this.onClose(); }
+  close() { this.opened = false; this.running = false; $('#control').hidden = true; this.hooks.onClose(); }
 
   reset() {
     const s = this.scene;
@@ -99,8 +99,10 @@ export class ControlRoom {
     const rows = [['Propulsión', ...st(a.twr, 1.3, 1), `Empuje/peso ${a.twr.toFixed(2)}`],
       ['Trayectoria', ...st(a.dv, DV_LEO, 8500), `Δv ${Math.round(a.dv)} m/s de ≈${DV_LEO}`],
       ['Diseño', ...(obs.some(x => x[0] === 'err') ? ['NO-GO', 'bad'] : obs.length ? ['PRECAUCIÓN', 'warn'] : ['GO', 'ok']), obs[0] ? obs[0][1] : 'Sin observaciones']];
+    const chk = this.hooks.check && this.hooks.check(this.stack); if (chk) rows.push([chk.name, chk.label, chk.cls, chk.detail]);
     const row = el('div', '', 'row'), go = el('button', 'GO: iniciar cuenta atrás', 'primary'), no = el('button', 'NO-GO: volver al hangar');
-    go.onclick = () => { box.hidden = true; this.running = true; }; no.onclick = () => this.close(); row.append(go, no);
+    go.disabled = !!chk && !chk.ok;
+    go.onclick = () => { box.hidden = true; this.running = true; const g = this.hooks.onGo && this.hooks.onGo(this.stack); if (g && g.fault) this.f.fault = true; }; no.onclick = () => this.close(); row.append(go, no);
     box.replaceChildren(el('h2', 'Votación Go / No-Go'), el('p', 'Los equipos te dan su informe. Tú decides si se lanza.', 'tip'),
       ...rows.map(([n, l, c, d]) => { const r = el('div', '', 'gn'); r.append(el('b', n), el('span', l, c), el('small', d)); return r; }), row);
   }
@@ -163,6 +165,7 @@ export class ControlRoom {
       localStorage.setItem('dn.flights', JSON.stringify(L.slice(-200)));
       const mine = L.filter(x => x.name === this.name); box.append(el('p', `Historial de «${this.name}»: ${mine.length} vuelos, ${mine.filter(x => x.ok).length} con éxito.`, 'tip'));
     } catch { /* sin almacenamiento */ }
+    const extra = this.hooks.onResult && this.hooks.onResult(this.stack, r.ok); if (extra) box.append(el('p', extra));
     const row = el('div', '', 'row'), back = el('button', 'Volver al hangar', 'primary'), again = el('button', 'Repetir lanzamiento');
     back.onclick = () => this.close(); again.onclick = () => { this.reset(); this.setCam(this.cam); this.gonogo(); }; row.append(back, again); box.append(row);
   }

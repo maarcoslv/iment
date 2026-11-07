@@ -11,7 +11,7 @@ export class Flight {
     this.a = analyze(stack); this.stages = this.a.stages; this.si = 0; this.prop = this.stages[0].prop;
     this.area = Math.PI * Math.max(...stack.map(e => inst(e).r)) ** 2;
     Object.assign(this, { t: -5, x: 0, y: R, vx: 0, vy: 0, phi: Math.PI / 2, phase: 'countdown', thr: 0, wait: 0, F: 0, p: 1, q: 0, th: 1,
-      events: [], debris: [], done: false, result: null, maxAlt: 0, maxV: 0, maxQ: 0, exhausted: false });
+      events: [], debris: [], done: false, result: null, maxAlt: 0, maxV: 0, maxQ: 0, exhausted: false, fault: false, faultT: 25 + Math.random() * 90 });
     this.log('Cuenta atrás iniciada');
   }
   log(msg) { this.events.push({ t: this.t, msg }); }
@@ -30,6 +30,7 @@ export class Flight {
     if (this.done) return;
     this.t += dt;
     if (this.t < 0) return;
+    if (this.fault && this.t > this.faultT) { this.finish(false, 'Fallo de software', 'El software de a bordo perdió el control del cohete. Era el defecto que se había advertido.'); return; }
     if (this.phase === 'countdown') { this.phase = 'ascent'; this.thr = 1; this.log('Ignición de motores'); }
     const r = Math.hypot(this.x, this.y), h = r - R, ux = this.x / r, uy = this.y / r;
     const vr = this.vx * ux + this.vy * uy, vt = this.vx * uy - this.vy * ux, v = Math.hypot(this.vx, this.vy);
