@@ -7,8 +7,8 @@ import { rocketGroup } from './rocket3d.js';
 const $ = s => document.querySelector(s), V = (x, y, z) => new THREE.Vector3(x, y, z);
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 const el = (t, txt, cls) => { const e = document.createElement(t); if (txt) e.textContent = txt; if (cls) e.className = cls; return e; };
-const clock = t => { const s = Math.floor(Math.abs(t)); return `T${t < 0 ? '−' : '+'}${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`; };
-const PHASES = { countdown: 'Cuenta atrás', ascent: 'Ascenso', coast: 'Inercia', circ: 'Circularización', drift: 'Sin propulsión', orbit: 'En órbita' };
+export const clock = t => { const s = Math.floor(Math.abs(t)); return `T${t < 0 ? '−' : '+'}${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`; };
+export const PHASES = { countdown: 'Cuenta atrás', ascent: 'Ascenso', coast: 'Inercia', circ: 'Circularización', drift: 'Sin propulsión', orbit: 'En órbita' };
 const FIELDS = [['t', 'Reloj'], ['ph', 'Fase'], ['alt', 'Altitud'], ['v', 'Velocidad'], ['vr', 'Velocidad vertical'], ['ap', 'Apoapsis'], ['pe', 'Periapsis'],
   ['thr', 'Empuje'], ['st', 'Etapa'], ['fuel', 'Combustible de la etapa'], ['mass', 'Masa'], ['q', 'Presión dinámica']];
 
@@ -18,7 +18,7 @@ export class ControlRoom {
     $('#tele').replaceChildren(...FIELDS.flatMap(([k, l]) => { const dd = el('dd', '—'); this.tl[k] = dd; return [el('dt', l), dd]; }));
     document.querySelectorAll('#cams button').forEach(b => b.onclick = () => this.setCam(b.dataset.cam));
     document.querySelectorAll('#warp button').forEach(b => b.onclick = () => { this.warp = +b.dataset.w; this.markWarp(); });
-    $('#ctl-exit').onclick = () => this.close();
+    $('#ctl-exit').onclick = () => (this.live && !this.f.done ? this.hide() : this.close());
     this.loop = t => {
       if (!this.opened) return; requestAnimationFrame(this.loop);
       const dt = Math.min(0.1, (t - (this.t0 || t)) / 1000); this.t0 = t;
@@ -75,10 +75,12 @@ export class ControlRoom {
   open(stack, name) {
     $('#control').hidden = false; if (!this.ready) this.init();
     this.stack = stack.map(e => ({ ...e })); this.name = name; $('#ctl-name').textContent = name;
-    this.reset(); this.setCam('pad'); this.warp = 1; this.markWarp(); this.gonogo(); this.resize();
+    this.reset(); $('#ctl-exit').textContent = 'Salir'; this.setCam('pad'); this.warp = 1; this.markWarp(); this.gonogo(); this.resize();
     this.opened = true; this.t0 = 0; requestAnimationFrame(this.loop);
   }
-  close() { this.opened = false; this.running = false; $('#control').hidden = true; this.hooks.onClose(); }
+  hide() { this.opened = false; $('#control').hidden = true; this.hooks.onClose(); }
+  show() { $('#control').hidden = false; this.opened = true; this.t0 = 0; this.resize(); requestAnimationFrame(this.loop); }
+  close() { this.live = false; this.running = false; this.hide(); }
 
   reset() {
     const s = this.scene;
@@ -88,7 +90,7 @@ export class ControlRoom {
     this.inner = group; this.H0 = height; this.rm = rmax;
     this.rk = new THREE.Group(); this.rk.add(group, this.flame); s.add(this.rk);
     this.sh = f.stages.map(st => st.parts.reduce((a, p) => a + p.h, 0));
-    Object.assign(this, { shown: 0, acc: 0, logN: 0, trailN: 0, lastTrail: -99, rep: false, running: false });
+    Object.assign(this, { live: false, shown: 0, acc: 0, logN: 0, trailN: 0, lastTrail: -99, rep: false, running: false });
     this.trail.geometry.setDrawRange(0, 0); $('#log').replaceChildren(); $('#result').hidden = true;
   }
 
@@ -102,7 +104,7 @@ export class ControlRoom {
     const chk = this.hooks.check && this.hooks.check(this.stack); if (chk) rows.push([chk.name, chk.label, chk.cls, chk.detail]);
     const row = el('div', '', 'row'), go = el('button', 'GO: iniciar cuenta atrás', 'primary'), no = el('button', 'NO-GO: volver al hangar');
     go.disabled = !!chk && !chk.ok;
-    go.onclick = () => { box.hidden = true; this.running = true; const g = this.hooks.onGo && this.hooks.onGo(this.stack); if (g && g.fault) this.f.fault = true; }; no.onclick = () => this.close(); row.append(go, no);
+    go.onclick = () => { box.hidden = true; this.running = true; this.live = true; $('#ctl-exit').textContent = 'Minimizar'; const g = this.hooks.onGo && this.hooks.onGo(this.stack); if (g && g.fault) this.f.fault = g.fault; }; no.onclick = () => this.close(); row.append(go, no);
     box.replaceChildren(el('h2', 'Votación Go / No-Go'), el('p', 'Los equipos te dan su informe. Tú decides si se lanza.', 'tip'),
       ...rows.map(([n, l, c, d]) => { const r = el('div', '', 'gn'); r.append(el('b', n), el('span', l, c), el('small', d)); return r; }), row);
   }
@@ -157,7 +159,7 @@ export class ControlRoom {
   }
 
   result() {
-    const f = this.f, r = f.result, box = $('#result'); box.hidden = false;
+    const f = this.f, r = f.result, box = $('#result'); box.hidden = false; $('#ctl-exit').textContent = 'Salir';
     box.replaceChildren(el('h2', r.title, r.ok ? 'ok' : 'bad'), el('p', r.text),
       el('p', `Altitud máxima ${Math.round(f.maxAlt / 1000)} km · velocidad máxima ${Math.round(f.maxV)} m/s · Max-Q ${Math.round(f.maxQ / 1000)} kPa · duración ${clock(f.t)}`, 'tip'));
     try {

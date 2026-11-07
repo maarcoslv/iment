@@ -8,14 +8,14 @@ export class Hangar {
     const r = this.r = new THREE.WebGLRenderer({ antialias: true });
     r.setPixelRatio(Math.min(devicePixelRatio, 2)); el.appendChild(r.domElement);
     const s = this.scene = new THREE.Scene();
-    s.background = new THREE.Color(0x0d1d33); s.fog = new THREE.Fog(0x0d1d33, 90, 260);
+    s.background = new THREE.Color(0x07090c); s.fog = new THREE.Fog(0x07090c, 90, 260);
     this.cam = new THREE.PerspectiveCamera(40, 1, 0.5, 600);
     this.ctl = new OrbitControls(this.cam, r.domElement);
     this.ctl.enableDamping = true; this.ctl.maxPolarAngle = Math.PI * 0.495;
     s.add(new THREE.HemisphereLight(0xbcd4ff, 0x1a2a44, 1.2));
     const d = new THREE.DirectionalLight(0xffffff, 2.4); d.position.set(30, 60, 25); s.add(d);
-    s.add(new THREE.GridHelper(160, 80, 0x3d7fc0, 0x1c3556));
-    const pad = new THREE.Mesh(new THREE.CylinderGeometry(9, 9, 0.4, 48), new THREE.MeshStandardMaterial({ color: 0x33415a }));
+    s.add(new THREE.GridHelper(160, 80, 0x2f7fa0, 0x182430));
+    const pad = new THREE.Mesh(new THREE.CylinderGeometry(9, 9, 0.4, 48), new THREE.MeshStandardMaterial({ color: 0x262b32 }));
     pad.position.y = -0.2; s.add(pad);
     this.group = new THREE.Group(); s.add(this.group);
     new ResizeObserver(() => this.resize()).observe(el); this.resize();

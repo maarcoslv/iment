@@ -30,7 +30,7 @@ export class Flight {
     if (this.done) return;
     this.t += dt;
     if (this.t < 0) return;
-    if (this.fault && this.t > this.faultT) { this.finish(false, 'Fallo de software', 'El software de a bordo perdió el control del cohete. Era el defecto que se había advertido.'); return; }
+    if (this.fault && this.t > this.faultT) { this.finish(false, 'Fallo a bordo', this.fault); return; }
     if (this.phase === 'countdown') { this.phase = 'ascent'; this.thr = 1; this.log('Ignición de motores'); }
     const r = Math.hypot(this.x, this.y), h = r - R, ux = this.x / r, uy = this.y / r;
     const vr = this.vx * ux + this.vy * uy, vt = this.vx * uy - this.vy * ux, v = Math.hypot(this.vx, this.vy);
