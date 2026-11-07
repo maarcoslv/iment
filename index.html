@@ -3,68 +3,70 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Director de la NASA · Hangar</title>
-<link rel="stylesheet" href="style.css?v=4">
+<title>Director de la NASA</title>
+<link rel="stylesheet" href="style.css?v=5">
 <script type="importmap">
-{ "imports": { "three": "./three.module.js", "three/addons/controls/OrbitControls.js": "./OrbitControls.js", "./parts.js": "./parts.js?v=4", "./calc.js": "./calc.js?v=4", "./hangar.js": "./hangar.js?v=4", "./blueprint.js": "./blueprint.js?v=4", "./control.js": "./control.js?v=4", "./flight.js": "./flight.js?v=4", "./rocket3d.js": "./rocket3d.js?v=4", "./game.js": "./game.js?v=4", "./gamedata.js": "./gamedata.js?v=4", "./agency.js": "./agency.js?v=4" } }
+{ "imports": { "three": "./three.module.js", "three/addons/controls/OrbitControls.js": "./OrbitControls.js", "./parts.js": "./parts.js?v=5", "./calc.js": "./calc.js?v=5", "./hangar.js": "./hangar.js?v=5", "./blueprint.js": "./blueprint.js?v=5", "./control.js": "./control.js?v=5", "./flight.js": "./flight.js?v=5", "./rocket3d.js": "./rocket3d.js?v=5", "./game.js": "./game.js?v=5", "./gamedata.js": "./gamedata.js?v=5", "./shell.js": "./shell.js?v=5" } }
 </script>
 </head>
 <body>
-<header>
-  <h1>Director de la NASA <span>Hangar, prototipo 0.4</span></h1>
-  <div class="row">
-    <button id="undo" title="Deshacer (Ctrl+Z)">Deshacer</button>
-    <button id="redo" title="Rehacer (Ctrl+Y)">Rehacer</button>
-  </div>
-  <span id="hud"></span><button id="agency-btn" title="Panel de dirección: presupuesto, contratos y decisiones">Agencia</button>
-  <button id="launch" class="primary" title="Ir a la sala de control y lanzar este cohete">Lanzar</button>
-  <nav aria-label="Vista">
-    <button data-v="3d" class="on">Hangar 3D</button>
-    <button data-v="bp">Planos</button>
-  </nav>
+<header id="top">
+  <div id="logo">DIRECTOR<br>DE LA NASA</div>
+  <div id="stats-top"></div>
+  <div id="clock"></div>
 </header>
-<main>
-  <aside id="catalog" aria-label="Piezas">
-    <h2>Añadir piezas</h2>
-    <p class="tip" id="addtip"></p>
-  </aside>
-  <section id="stage">
-    <div id="view3d"></div>
-    <canvas id="bp" hidden></canvas>
-    <p id="hint">Arrastra para girar · rueda para acercar · clic en una pieza para seleccionarla</p>
-    <ul id="alerts"></ul>
-  </section>
-  <aside id="side">
-    <section id="props"></section>
-    <div id="stats"></div>
-    <details open><summary>Piezas del cohete (de arriba abajo)</summary><ol id="stack"></ol></details>
-    <details>
-      <summary>Biblioteca de diseños</summary>
-      <input id="name" aria-label="Nombre del diseño" maxlength="40">
-      <div class="row"><button id="save">Guardar</button><button id="new">Nuevo</button><button id="png">Exportar plano</button></div>
-      <select id="lib" aria-label="Diseños guardados"></select>
-      <div class="row"><button id="load">Cargar</button><button id="del">Borrar</button></div>
-    </details>
-  </aside>
-</main>
-<section id="agency" hidden aria-label="Panel de dirección">
-  <div id="ag-top"><b id="ag-title"></b><button id="ag-next" class="primary" title="Avanza el tiempo: cobras el presupuesto y llegan noticias">Pasar trimestre</button><button id="ag-close">Volver al hangar</button></div>
-  <div id="ag-main">
-    <div id="ag-stats"></div>
-    <div id="ag-center"><h2>Contratos y misiones</h2><div id="ag-missions"></div></div>
-    <div id="ag-side"><h2>Noticias</h2><ol id="ag-news"></ol><h2>Legado hasta ahora</h2><div id="ag-legacy"></div><button id="ag-new">Nueva partida</button></div>
+<div id="shell">
+  <nav id="nav" aria-label="Áreas"></nav>
+  <main id="views">
+    <section id="v-main" class="view"></section>
+    <section id="v-hangar" class="view" hidden>
+      <div id="hg-bar">
+        <h1>Hangar 3D y planos</h1><span class="grow"></span>
+        <button id="undo" title="Deshacer (Ctrl+Z)">Deshacer</button><button id="redo" title="Rehacer (Ctrl+Y)">Rehacer</button>
+        <nav aria-label="Vista"><button data-v="3d" class="on">Hangar 3D</button><button data-v="bp">Planos</button></nav>
+        <button id="launch" class="primary" title="Ir a la sala de control y lanzar este cohete">Lanzar</button>
+      </div>
+      <div id="hg-body">
+        <aside id="catalog" aria-label="Piezas"><h2>Añadir piezas</h2><p class="tip" id="addtip"></p></aside>
+        <section id="stage">
+          <div id="view3d"></div><canvas id="bp" hidden></canvas>
+          <p id="hint">Arrastra para girar · rueda para acercar · clic en una pieza para seleccionarla</p>
+          <ul id="alerts"></ul>
+        </section>
+        <aside id="side">
+          <section id="props"></section>
+          <div id="stats"></div>
+          <details open><summary>Piezas del cohete (de arriba abajo)</summary><ol id="stack"></ol></details>
+          <details>
+            <summary>Biblioteca de diseños</summary>
+            <input id="name" aria-label="Nombre del diseño" maxlength="40">
+            <div class="row"><button id="save">Guardar</button><button id="new">Nuevo</button><button id="png">Exportar plano</button></div>
+            <select id="lib" aria-label="Diseños guardados"></select>
+            <div class="row"><button id="load">Cargar</button><button id="del">Borrar</button></div>
+          </details>
+        </aside>
+      </div>
+    </section>
+  </main>
+  <aside id="inbox" aria-label="Bandeja de eventos"></aside>
+</div>
+<footer id="timebar">
+  <div id="tb-left">
+    <div class="tbl"><span id="tb-mand">Mandato: 2026 – 2034</span><span id="tb-next"></span></div>
+    <div class="track"><i id="tb-fill"></i><u id="tb-knob"></u></div>
   </div>
-  <div id="ag-dialog" hidden></div>
-</section>
+  <div id="tb-right"><small>Velocidad del tiempo · pausa automática en eventos y Go / No-Go</small><div class="grp" id="speeds"></div></div>
+</footer>
+<div id="modal" hidden></div>
 <section id="control" hidden aria-label="Sala de control">
   <div id="ctl-top">
     <b id="ctl-name"></b>
     <div class="grp" id="cams" aria-label="Cámaras"><button data-cam="pad" class="on">Rampa</button><button data-cam="follow">Seguimiento</button><button data-cam="board">A bordo</button><button data-cam="free">Libre</button></div>
-    <div class="grp" id="warp" aria-label="Velocidad del tiempo"><button data-w="0">Pausa</button><button data-w="0.25">×0,25</button><button data-w="1" class="on">×1</button><button data-w="5">×5</button><button data-w="20">×20</button><button data-w="100">×100</button></div>
-    <button id="ctl-exit">Salir al hangar</button>
+    <div class="grp" id="warp" aria-label="Velocidad del vuelo"><button data-w="0">Pausa</button><button data-w="0.25">×0,25</button><button data-w="1" class="on">×1</button><button data-w="5">×5</button><button data-w="20">×20</button><button data-w="100">×100</button></div>
+    <button id="ctl-exit">Salir</button>
   </div>
   <div id="ctl-main"><dl id="tele"></dl><div id="ctl-view"><div id="gonogo" hidden></div><div id="result" hidden></div></div><ol id="log" aria-label="Registro de la misión"></ol></div>
 </section>
-<script type="module" src="main.js?v=4"></script>
+<script type="module" src="main.js?v=5"></script>
 </body>
 </html>

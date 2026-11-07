@@ -4,7 +4,7 @@ import { Hangar } from './hangar.js';
 import { drawBlueprint } from './blueprint.js';
 import { ControlRoom } from './control.js';
 import { G } from './game.js';
-import { Agency } from './agency.js';
+import { Shell } from './shell.js';
 
 const $ = s => document.querySelector(s), KEY = 'dn.designs';
 const fmt = n => Math.round(n).toLocaleString('es-ES');
@@ -66,7 +66,6 @@ function del() { if (state.sel >= 0) edit(() => { state.stack.splice(state.sel, 
 function refresh(keepProps) {
   const a = analyze(state.stack), cls = (v, lo, hi) => v < lo ? 'bad' : v < hi ? 'warn' : 'good';
   $('#name').value = state.name;
-  $('#hud').textContent = `${G.label()} · ${fmt(G.s.money)} M$`;
   $('#undo').disabled = !hist.length; $('#redo').disabled = !fut.length;
   $('#addtip').textContent = state.sel < 0 ? 'Las piezas nuevas se añaden al final. Selecciona una pieza y se añadirán justo debajo.' : `Las piezas nuevas se añaden debajo de «${inst(state.stack[state.sel]).name}».`;
   $('#stats').innerHTML = `<div class="big">
@@ -98,9 +97,9 @@ function paintBlueprint(a) {
 }
 
 hangar.onPick = i => { state.sel = i; refresh(); };
-document.querySelectorAll('nav button').forEach(b => b.onclick = () => {
+document.querySelectorAll('#hg-bar nav button').forEach(b => b.onclick = () => {
   view = b.dataset.v;
-  document.querySelectorAll('nav button').forEach(o => o.classList.toggle('on', o === b));
+  document.querySelectorAll('#hg-bar nav button').forEach(o => o.classList.toggle('on', o === b));
   $('#view3d').hidden = $('#hint').hidden = view !== '3d'; bp.hidden = view !== 'bp';
   if (view === 'bp') paintBlueprint(); else hangar.resize();
 });
@@ -125,14 +124,14 @@ $('#png').onclick = () => {
   const l = document.createElement('a'); l.download = `plano-${state.name}.png`; l.href = c.toDataURL('image/png'); l.click();
 };
 
-const back = () => { hangar.paused = false; hangar.resize(); refresh(); };
+let shell;
+const back = () => { hangar.paused = shell.view !== 'hangar'; hangar.resize(); refresh(); shell.render(); };
 const room = new ControlRoom({ onClose: back, check: s => G.check(s), onGo: s => G.onGo(s), onResult: (s, ok) => G.onResult(s, ok) });
-const agency = new Agency(back);
-$('#agency-btn').onclick = () => { hangar.paused = true; agency.open(); };
+shell = new Shell(room, hangar, refresh);
 $('#launch').onclick = () => {
   if (!state.stack.length) return alert('Construye un cohete antes de lanzar.');
   if (G.s.over) return alert('Tu mandato ha terminado. Abre la Agencia para empezar una partida nueva.');
-  hangar.paused = true; room.open(state.stack, state.name);
+  hangar.paused = true; if (room.live) room.show(); else room.open(state.stack, state.name);
 };
 
-buildCatalog(); refresh();
+buildCatalog(); refresh(); shell.start();

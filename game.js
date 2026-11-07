@@ -50,6 +50,7 @@ export const G = {
     if (s.techP >= 100 && s.tech < 10) { s.tech++; s.techP -= 100; this.note(`Avance tecnológico: Nv. ${s.tech}.`); this.push({ kind: 'news', title: 'Avance tecnológico', text: `Tus equipos de I+D alcanzan el nivel tecnológico ${s.tech}.`, exp: s.now + 20 * DAY }); }
     s.morale += (clamp(40 + sh('staff') * 3) - s.morale) * 0.01;
     s.fiab = clamp(s.fiab + (clamp(40 + sh('ops') * 1.5) - s.fiab) * 0.002);
+    s.support = clamp(s.support + (clamp(20 + s.opinion * 0.5) - s.support) * 0.002);
     s.opinion += Math.sign(50 - s.opinion) * Math.min(0.03, Math.abs(50 - s.opinion));
     if (s.money < 0) { s.support = clamp(s.support - 0.05); if (d.getUTCDate() === 1) this.note('Déficit: el Congreso critica tu gestión.'); }
     if (s.support <= 10 && !s.over) s.over = 'Has perdido la confianza del Congreso y de la Casa Blanca: te destituyen.';
@@ -114,7 +115,7 @@ export const G = {
       if (a && (a.req === 'any' ? has('probe') || has('capsule') : has(a.req))) {
         this.fx(a.reward); s.stats.done++; s.active = null; const r = a.reward;
         txt = `Contrato «${a.name}» cumplido.` + Object.entries({ money: 'M$', opinion: 'opinión', support: 'apoyo', rep: 'reputación' }).filter(([k]) => r[k]).map(([k, u]) => ` +${r[k]} ${u}`).join(',');
-      } else { this.fx({ opinion: 1 }); txt = 'Lanzamiento exitoso, pero sin un contrato activo que cumplir (la carga o el contrato no coinciden).'; }
+      } else { this.fx({ opinion: 1, support: 0.5 }); txt = 'Lanzamiento exitoso, pero sin un contrato activo que cumplir (la carga o el contrato no coinciden).'; }
     } else {
       s.stats.fail++; s.fiab = clamp(s.fiab - 4); this.fx({ support: -4, opinion: -6, rep: -3 }); txt = 'El fracaso pasa factura: menos apoyo político, opinión y reputación.';
       if (s.crewed) { s.stats.lost += 3; this.fx({ support: -12, opinion: -18, rep: -8 }); txt = 'Se ha perdido la tripulación (3 astronautas). Habrá una investigación y el golpe político es enorme.'; }
